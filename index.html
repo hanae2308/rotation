@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slot Machine Name Sorter</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            padding: 40px;
+            width: 100%;
+            max-width: 1000px;
+        }
+        
+        /* Header Section */
+        .header {
+            text-align: center;
+            padding-bottom: 24px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 32px;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #ff6b6b, #ffd166, #06d6a0, #118ab2, #ef476f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+        }
+        
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Names Grid */
+        .names-section {
+            margin-bottom: 32px;
+        }
+        
+        .section-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .names-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        
+        .name-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .name-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #06d6a0;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(6, 214, 160, 0.3);
+        }
+        
+        .name-item.selected {
+            background: rgba(6, 214, 160, 0.1);
+            border-color: #06d6a0;
+        }
+        
+        .name-item input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            margin-right: 18px;
+            cursor: pointer;
+            accent-color: #06d6a0;
+        }
+        
+        .name-label {
+            flex: 1;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .color-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-left: 10px;
+            box-shadow: 0 0 10px currentColor;
+        }
+        
+        /* Buttons Section */
+        .buttons-section {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 32px 0;
+            flex-wrap: wrap;
+        }
+        
+        .action-button {
+            padding: 16px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 160px;
+            justify-content: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .action-button:hover:not(:disabled) {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .action-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .toggle-select-btn {
+            background: linear-gradient(135deg, #06d6a0, #04a97f);
+            color: white;
+        }
+        
+        .sort-btn {
+            background: linear-gradient(135deg, #118ab2, #0a6a8a);
+            color: white;
+        }
+        
+        .reset-btn {
+            background: linear-gradient(135deg, #ef476f, #d43a5c);
+            color: white;
+        }
+        
+        .copy-btn {
+            background: linear-gradient(135deg, #9d4edd, #7b2cbf);
+            color: white;
+        }
+        
+        /* Slot Machine Container */
+        .slot-machine-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 32px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Results placeholder */
+        .results-placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            text-align: center;
+            padding: 80px 20px;
+            font-size: 1.4rem;
+            z-index: 2;
+        }
+        
+        /* Slot Machine */
+        .slot-machine {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .slot-machine-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .slot-machine-icon {
+            font-size: 40px;
+            animation: bounce 2s infinite;
+        }
+        
+        .slot-machine-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, #ffd166, #ef476f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Slot Reels */
+        .slot-reels {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .slot-reel {
+            width: 200px;
+            height: 300px;
+            background: linear-gradient(180deg, #1a1a2e, #16213e);
+            border-radius: 15px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .slot-reel::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-50%);
+            z-index: 2;
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .slot-items {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+        
+        .slot-item {
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 0 10px currentColor;
+            padding: 20px;
+            text-align: center;
+            word-break: break-word;
+        }
+        
+        /* Spinning Text */
+        .spinning-text {
+            color: #ffd166;
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            margin-top: 30px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: pulseGlow 1.5s infinite alternate;
+            display: none;
+        }
+        
+        /* Results Section */
+        .results-section {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+        
+        .results-title {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .copy-results-btn {
+            background: linear-gradient(135deg, #9d4edd, #7b2cbf);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .copy-results-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(157, 78, 221, 0.4);
+        }
+        
+        .copy-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #06d6a0;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            animation: slideInRight 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .copy-message.fade-out {
+            animation: fadeOut 0.3s ease forwards;
+        }
+        
+        .results-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .result-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 22px 26px;
+            display: flex;
+            align-items: center;
+            animation: slideIn 0.4s ease forwards;
+            opacity: 0;
+            transform: translateX(-30px);
+            border-left: 6px solid;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .rank-badge {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ff6b6b, #ef476f);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin-right: 24px;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+        
+        .result-name {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 700;
+            flex: 1;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            padding-top: 32px;
+            margin-top: 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            line-height: 1.6;
+        }
+        
+        /* Animations */
+        @keyframes pulseGlow {
+            0% { 
+                opacity: 0.8; 
+                text-shadow: 0 0 10px #ffd166;
+            }
+            100% { 
+                opacity: 1; 
+                text-shadow: 0 0 30px #ffd166, 0 0 60px #ffd166;
+            }
+        }
+        
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes spinReel {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-3000px); }
+        }
+        
+        @keyframes confettiRain {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
+        }
+        
+        /* Confetti */
+        .confetti {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .names-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+            
+            .slot-reels {
+                gap: 15px;
+            }
+            
+            .slot-reel {
+                width: 140px;
+                height: 250px;
+            }
+            
+            .slot-item {
+                height: 80px;
+                font-size: 1.2rem;
+                padding: 15px;
+            }
+            
+            .results-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .names-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons-section {
+                flex-direction: column;
+            }
+            
+            .action-button {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .slot-reels {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+            
+            .slot-reel {
+                width: 100%;
+                max-width: 250px;
+                height: 200px;
+            }
+            
+            .slot-item {
+                height: 66px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>🎰 Slot Machine Sorter</h1>
+            <p class="subtitle">Select names and watch them spin like a slot machine for 2 seconds!</p>
+        </div>
+        
+        <!-- Names Selection Section -->
+        <div class="names-section">
+            <h2 class="section-title">Select Names to Include</h2>
+            <div class="names-grid" id="namesContainer">
+                <!-- Names will be added here by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Buttons Section -->
+        <div class="buttons-section">
+            <button class="action-button toggle-select-btn" id="toggleSelectBtn">
+                <span>✓</span> Select All
+            </button>
+            <button class="action-button sort-btn" id="sortBtn">
+                <span>🎰</span> Spin Slots
+            </button>
+            <button class="action-button reset-btn" id="resetBtn">
+                <span>↻</span> Reset All
+            </button>
+        </div>
+        
+        <!-- Slot Machine Container -->
+        <div class="slot-machine-container">
+            <div id="slotMachine" class="slot-machine">
+                <div class="slot-machine-header">
+                    <span class="slot-machine-icon">🎰</span>
+                    <h2 class="slot-machine-title">Slot Machine</h2>
+                </div>
+                
+                <div class="slot-reels">
+                    <div class="slot-reel">
+                        <div class="slot-items" id="slotReel1"></div>
+                    </div>
+                    <div class="slot-reel">
+                        <div class="slot-items" id="slotReel2"></div>
+                    </div>
+                    <div class="slot-reel">
+                        <div class="slot-items" id="slotReel3"></div>
+                    </div>
+                </div>
+                
+                <div class="spinning-text" id="spinningText">Spinning...</div>
+            </div>
+            
+            <div id="resultsArea" class="results-section">
+                <!-- Results will appear here -->
+            </div>
+            
+            <div id="placeholder" class="results-placeholder">
+                Results will appear here after the slot machine stops
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>Click "Spin Slots" for 2 seconds of exciting slot machine animation!</p>
+            <p style="margin-top: 8px; font-size: 0.9rem; color: rgba(255, 255, 255, 0.5);">Press SPACE to spin the slots</p>
+        </div>
+    </div>
+
+    <script>
+        // Names data
+        const names = [
+            { name: "YOUSSEF SISAFI", color: "#ff6b6b" },
+            { name: "NOUHAILA", color: "#06d6a0" },
+            { name: "AMINE", color: "#118ab2" },
+            { name: "IMANE", color: "#ffd166" },
+            { name: "NADA", color: "#ef476f" },
+            { name: "NABIL", color: "#9d4edd" },
+            { name: "ALI", color: "#f8961e" },
+            { name: "SHAIMAE", color: "#90be6d" },
+            { name: "YOUSEF GUERRAF", color: "#43aa8b" },
+            { name: "SALMA", color: "#f3722c" },
+            { name: "HANAE", color: "#577590" }
+        ];
+
+        // DOM Elements
+        const namesContainer = document.getElementById('namesContainer');
+        const sortBtn = document.getElementById('sortBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const toggleSelectBtn = document.getElementById('toggleSelectBtn');
+        const resultsArea = document.getElementById('resultsArea');
+        const placeholder = document.getElementById('placeholder');
+        const slotMachine = document.getElementById('slotMachine');
+        const spinningText = document.getElementById('spinningText');
+        const slotReel1 = document.getElementById('slotReel1');
+        const slotReel2 = document.getElementById('slotReel2');
+        const slotReel3 = document.getElementById('slotReel3');
+
+        // Current results for copying
+        let currentResults = [];
+
+        // Initialize names
+        function initNames() {
+            namesContainer.innerHTML = '';
+            
+            names.forEach((person, index) => {
+                const nameItem = document.createElement('div');
+                nameItem.className = 'name-item';
+                nameItem.id = `name-item-${index}`;
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `name-${index}`;
+                checkbox.checked = true;
+                
+                const label = document.createElement('span');
+                label.className = 'name-label';
+                label.textContent = person.name;
+                
+                const colorDot = document.createElement('span');
+                colorDot.className = 'color-dot';
+                colorDot.style.backgroundColor = person.color;
+                colorDot.style.boxShadow = `0 0 15px ${person.color}`;
+                
+                nameItem.appendChild(checkbox);
+                nameItem.appendChild(label);
+                nameItem.appendChild(colorDot);
+                
+                checkbox.addEventListener('change', () => {
+                    nameItem.classList.toggle('selected', checkbox.checked);
+                    updateToggleButton();
+                });
+                
+                nameItem.classList.add('selected');
+                namesContainer.appendChild(nameItem);
+            });
+            
+            updateToggleButton();
+        }
+
+        // Check if all names are selected
+        function areAllSelected() {
+            for (let i = 0; i < names.length; i++) {
+                const checkbox = document.getElementById(`name-${i}`);
+                if (!checkbox.checked) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Update toggle button text and icon
+        function updateToggleButton() {
+            const allSelected = areAllSelected();
+            if (allSelected) {
+                toggleSelectBtn.innerHTML = '<span>✗</span> Deselect All';
+                toggleSelectBtn.title = "Click to deselect all names";
+            } else {
+                toggleSelectBtn.innerHTML = '<span>✓</span> Select All';
+                toggleSelectBtn.title = "Click to select all names";
+            }
+        }
+
+        // Create slot machine reels with smooth animation
+        function createSlotReels(selectedNames) {
+            const colors = ['#ff6b6b', '#06d6a0', '#118ab2', '#ffd166', '#ef476f', '#9d4edd', '#f8961e'];
+            
+            function createReelHTML(reelIndex) {
+                let html = '';
+                // Create 20 items for 2-second smooth scrolling
+                for (let i = 0; i < 20; i++) {
+                    const colorIndex = (i + reelIndex * 10) % colors.length;
+                    const nameIndex = i % selectedNames.length;
+                    const name = selectedNames[nameIndex];
+                    html += `<div class="slot-item" style="color: ${colors[colorIndex]}">${name.name}</div>`;
+                }
+                return html;
+            }
+            
+            slotReel1.innerHTML = createReelHTML(0);
+            slotReel2.innerHTML = createReelHTML(1);
+            slotReel3.innerHTML = createReelHTML(2);
+            
+            // Apply smooth spinning animation
+            const spinAnimation = `spinReel 0.2s linear infinite`;
+            slotReel1.style.animation = spinAnimation;
+            slotReel2.style.animation = spinAnimation;
+            slotReel3.style.animation = spinAnimation;
+        }
+
+        // Toggle select/deselect all
+        function toggleSelectAll() {
+            const allSelected = areAllSelected();
+            
+            names.forEach((_, index) => {
+                const checkbox = document.getElementById(`name-${index}`);
+                const nameItem = document.getElementById(`name-item-${index}`);
+                
+                if (checkbox) {
+                    checkbox.checked = !allSelected;
+                    nameItem.classList.toggle('selected', !allSelected);
+                }
+            });
+            
+            updateToggleButton();
+        }
+
+        // Get selected names
+        function getSelectedNames() {
+            const selected = [];
+            names.forEach((person, index) => {
+                const checkbox = document.getElementById(`name-${index}`);
+                if (checkbox && checkbox.checked) {
+                    selected.push(person);
+                }
+            });
+            return selected;
+        }
+
+        // Shuffle array
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Create confetti
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#06d6a0', '#118ab2', '#ffd166', '#ef476f', '#9d4edd'];
+            const container = document.querySelector('.slot-machine-container');
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 6 + 'px';
+                confetti.style.height = Math.random() * 10 + 6 + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+                confetti.style.animation = `confettiRain ${Math.random() * 1.5 + 1}s ease-out forwards`;
+                confetti.style.animationDelay = Math.random() * 0.3 + 's';
+                
+                container.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 2500);
+            }
+        }
+
+        // Show copy message
+        function showCopyMessage() {
+            const message = document.createElement('div');
+            message.className = 'copy-message';
+            message.textContent = '✅ Results copied to clipboard!';
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.classList.add('fade-out');
+                setTimeout(() => message.remove(), 300);
+            }, 2000);
+        }
+
+        // Copy results to clipboard
+        function copyResults() {
+            if (currentResults.length === 0) {
+                alert('No results to copy. Spin the wheel first!');
+                return;
+            }
+            
+            const textToCopy = currentResults.map((name, index) => 
+                `${index + 1}. ${name}`
+            ).join('\n');
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showCopyMessage();
+            }).catch(() => {
+                alert('Failed to copy results. Please try again.');
+            });
+        }
+
+        // Show results
+        function showResults(shuffledNames) {
+            currentResults = shuffledNames.map(p => p.name);
+            
+            if (shuffledNames.length === 0) {
+                resultsArea.innerHTML = '<div class="results-placeholder">Please select at least one name</div>';
+                return;
+            }
+            
+            let resultsHTML = `
+                <div class="results-header">
+                    <h3 class="results-title">🎉 Final Results 🎉</h3>
+                    <button class="copy-results-btn" onclick="copyResults()">
+                        <span>📋</span> Copy Results
+                    </button>
+                </div>
+                <ol class="results-list">
+            `;
+            
+            shuffledNames.forEach((person, index) => {
+                resultsHTML += `
+                    <li class="result-item" style="animation-delay: ${index * 0.1}s; border-left-color: ${person.color}">
+                        <div class="rank-badge" style="background: ${person.color}">${index + 1}</div>
+                        <div class="result-name">${person.name}</div>
+                    </li>
+                `;
+            });
+            
+            resultsHTML += '</ol>';
+            resultsArea.innerHTML = resultsHTML;
+            
+            // Animate each result item
+            setTimeout(() => {
+                const resultItems = document.querySelectorAll('.result-item');
+                resultItems.forEach(item => {
+                    item.style.animationPlayState = 'running';
+                });
+                createConfetti();
+            }, 100);
+        }
+
+        // Spin slot machine and show results (2 seconds)
+        function spinSlotMachine() {
+            const selected = getSelectedNames();
+            if (selected.length === 0) {
+                alert('Please select at least one name');
+                return;
+            }
+            
+            // Disable button
+            sortBtn.disabled = true;
+            sortBtn.innerHTML = '<span>⏳</span> Spinning...';
+            
+            // Hide placeholder and previous results
+            placeholder.style.display = 'none';
+            resultsArea.style.display = 'none';
+            
+            // Show slot machine
+            slotMachine.style.display = 'block';
+            spinningText.style.display = 'block';
+            
+            // Create and start spinning animation
+            createSlotReels(selected);
+            
+            // Generate random order for results
+            const shuffled = shuffleArray(selected);
+            
+            // Spin for 2 seconds
+            setTimeout(() => {
+                // Stop slot machine animation smoothly
+                slotReel1.style.animation = 'none';
+                slotReel2.style.animation = 'none';
+                slotReel3.style.animation = 'none';
+                spinningText.style.display = 'none';
+                
+                // Hide slot machine
+                setTimeout(() => {
+                    slotMachine.style.display = 'none';
+                    
+                    // Show results
+                    resultsArea.style.display = 'block';
+                    showResults(shuffled);
+                    
+                    // Re-enable button
+                    sortBtn.disabled = false;
+                    sortBtn.innerHTML = '<span>🎰</span> Spin Slots';
+                }, 300);
+            }, 2000); // Changed from 3000 to 2000
+        }
+
+        // Reset all
+        function resetAll() {
+            names.forEach((_, index) => {
+                const checkbox = document.getElementById(`name-${index}`);
+                const nameItem = document.getElementById(`name-item-${index}`);
+                if (checkbox) {
+                    checkbox.checked = false;
+                    nameItem.classList.remove('selected');
+                }
+            });
+            
+            // Reset UI state
+            slotMachine.style.display = 'none';
+            resultsArea.style.display = 'none';
+            resultsArea.innerHTML = '';
+            placeholder.style.display = 'block';
+            spinningText.style.display = 'none';
+            currentResults = [];
+            
+            sortBtn.disabled = false;
+            sortBtn.innerHTML = '<span>🎰</span> Spin Slots';
+            updateToggleButton();
+        }
+
+        // Event listeners
+        sortBtn.addEventListener('click', spinSlotMachine);
+        resetBtn.addEventListener('click', resetAll);
+        toggleSelectBtn.addEventListener('click', toggleSelectAll);
+        
+        // Make copy function globally available
+        window.copyResults = copyResults;
+
+        // Keyboard shortcut
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !sortBtn.disabled) {
+                e.preventDefault();
+                spinSlotMachine();
+            }
+        });
+
+        // Initialize
+        initNames();
+    </script>
+</body>
+</html>
