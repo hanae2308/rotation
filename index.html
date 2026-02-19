@@ -640,7 +640,7 @@
     </div>
 
     <script>
-        // Names data
+        // Names data - Updated with two new names: AISSAM and AHHMEED
         const names = [
             { name: "YOUSSEF SISAFI", color: "#ff6b6b" },
             { name: "NOUHAILA", color: "#06d6a0" },
@@ -652,11 +652,9 @@
             { name: "SHAIMAE", color: "#90be6d" },
             { name: "YOUSEF GUERRAF", color: "#43aa8b" },
             { name: "SALMA", color: "#f3722c" },
-            { name: "HANAE", color: "#577590" }
-           { name: "AISSAM", color: "#6585B8" }
+            { name: "HANAE", color: "#577590" },
+            { name: "AISSAM", color: "#6585B8" },
             { name: "AHHMEED", color: "#2F17E3" }
-
-
         ];
 
         // DOM Elements
@@ -739,7 +737,7 @@
 
         // Create slot machine reels with smooth animation
         function createSlotReels(selectedNames) {
-            const colors = ['#ff6b6b', '#06d6a0', '#118ab2', '#ffd166', '#ef476f', '#9d4edd', '#f8961e'];
+            const colors = ['#ff6b6b', '#06d6a0', '#118ab2', '#ffd166', '#ef476f', '#9d4edd', '#f8961e', '#6585B8', '#2F17E3'];
             
             function createReelHTML(reelIndex) {
                 let html = '';
@@ -805,7 +803,7 @@
 
         // Create confetti
         function createConfetti() {
-            const colors = ['#ff6b6b', '#06d6a0', '#118ab2', '#ffd166', '#ef476f', '#9d4edd'];
+            const colors = ['#ff6b6b', '#06d6a0', '#118ab2', '#ffd166', '#ef476f', '#9d4edd', '#6585B8', '#2F17E3'];
             const container = document.querySelector('.slot-machine-container');
             
             for (let i = 0; i < 50; i++) {
@@ -992,4 +990,3 @@
 </body>
 
 </html>
-
